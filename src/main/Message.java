@@ -4,7 +4,6 @@ package main;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -12,23 +11,30 @@ import java.util.HashMap;
  */
 public class Message {
 
-    private Dictionary dictionary;
-    private HashMap<String, Integer> vecteurBinaire;
-    private static String[] separator =
-            {".", ";", ",", " ", "<", ">", "!", "?", "#", "@", "(", ")", "\'", "\t", "-", "+", "="};
+    private HashMap<String, Integer> vector;
+    String regex = "[.|;|,| |<|>|!|?|#|@|(|)|'|-|+|=|/|:]";
 
-    public Message(String pathFile){
-        dictionary = new Dictionary();
-        vecteurBinaire = new HashMap<String, Integer>(dictionary.getBase().size());
+
+    public Message(String pathFile, Dictionary dictionary){
+        this.vector = new HashMap<String, Integer>(dictionary.getBase().size());
+
+        for(String word : dictionary.getBase()){
+            vector.put(word, 0);
+        }
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(pathFile));
             String line;
             String[] words;
             while ((line = br.readLine()) != null) {
-                words = line.split(" ");
-                for(int i = 0; i < words.length; i++){
+                words = line.split(regex);
 
+                for(String word : words){
+                    word = word.toUpperCase();
+                    if(vector.containsKey(word)) {
+
+                        vector.put(word,vector.get(word)+1);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -36,8 +42,8 @@ public class Message {
         }
     }
 
-    public HashMap<String, Integer> getVecteurBinaire() {
-        return vecteurBinaire;
+    public HashMap<String, Integer> getVector() {
+        return vector;
     }
 
 }
