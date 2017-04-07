@@ -17,7 +17,9 @@ public class Dictionary {
 			BufferedReader br = new BufferedReader( new FileReader(path) );
 			String line;
 			while ((line = br.readLine()) != null) {
-				this.base.add(line);
+				// exclusion des mots de 3 lettres ou moins
+				if (line.length() > 3)
+					this.base.add(line);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
