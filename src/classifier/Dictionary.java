@@ -9,7 +9,7 @@ public class Dictionary {
 
 	private ArrayList<String> base;
 	
-	private static String PATH = "./base/dictionnaire1000en.txt";
+	private final static String PATH = "./base/dictionnaire1000en.txt";
 
 	public Dictionary() {
 		this.base = new ArrayList<String>();

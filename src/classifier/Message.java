@@ -11,38 +11,38 @@ import java.util.HashMap;
  */
 public class Message {
 
-    private HashMap<String, Integer> vector;
-    
-    private static String regex = "[.|;|,| |<|>|!|?|#|@|(|)|'|-|+|=|/|:]";
+	private HashMap<String, Integer> vector;
 
-    public Message(String pathFile, Dictionary dictionary){
-        this.vector = new HashMap<String, Integer>(dictionary.getBase().size());
+	private final static String regex = "[.|;|,| |<|>|!|?|#|@|(|)|'|-|+|=|/|:]";
 
-        for(String word : dictionary.getBase()){
-            vector.put(word, 0);
-        }
+	public Message(String pathFile, Dictionary dictionary){
+		this.vector = new HashMap<String, Integer>(dictionary.getBase().size());
 
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(pathFile));
-            String line;
-            String[] words;
-            while ((line = br.readLine()) != null) {
-                words = line.split(regex);
+		for(String word : dictionary.getBase()){
+			vector.put(word, 0);
+		}
 
-                for(String word : words){
-                    word = word.toUpperCase();
-                    if(vector.containsKey(word)) {
-                        vector.put(word,vector.get(word)+1);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(pathFile));
+			String line;
+			String[] words;
+			while ((line = br.readLine()) != null) {
+				words = line.split(regex);
 
-    public HashMap<String, Integer> getVector() {
-        return vector;
-    }
+				for(String word : words){
+					word = word.toUpperCase();
+					if(vector.containsKey(word)) {
+						vector.put(word,vector.get(word)+1);
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public HashMap<String, Integer> getVector() {
+		return vector;
+	}
 
 }

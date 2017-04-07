@@ -9,11 +9,8 @@ public class Main {
 
 		Dictionary d = new Dictionary();
 		Bayes b = new Bayes(d);
-		b.analysisBaseApp();
+		b.analysisBaseApp(200, 200);
 		
-//		for(Map.Entry entry : m.getVector().entrySet()){
-//		    System.out.println(entry.getKey()+ "\t"+entry.getValue());
-//        }
 	}
 
 }
