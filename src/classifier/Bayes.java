@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import main.Dictionary;
-import main.Message;
-
 public class Bayes {
 
 	private Dictionary dictionary;
@@ -25,13 +22,13 @@ public class Bayes {
 		System.out.println("Analyse des ham de baseapp ...");
 		String[] filesName = new File( this.BASE_APP_HAM ).list();
 		for (String s : filesName)
-			this.message.add( new Message(this.BASE_APP_HAM + s) );
+			this.message.add( new Message(this.BASE_APP_HAM + s, this.dictionary) );
 
 		// spam ---------- ---------- ---------- ---------- ---------- ---------- ----------
 		System.out.println("Analyse des spam de baseapp ...");
 		filesName = new File( this.BASE_APP_SPAM ).list();
 		for (String s : filesName)
-			this.message.add( new Message(this.BASE_APP_SPAM + s) );
+			this.message.add( new Message(this.BASE_APP_SPAM + s, this.dictionary) );
 		
 		System.out.println("Fin d'analyse");
 	}
