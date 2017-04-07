@@ -8,13 +8,14 @@ import java.util.ArrayList;
 public class Dictionary {
 
 	private ArrayList<String> base;
+	private static String PATH="./base/dictionnaire1000en.txt";
 
-	public Dictionary(String path) {
+	public Dictionary() {
 		this.base = new ArrayList<String>();
 
 		// Lecture de la base
 		try {
-			BufferedReader br = new BufferedReader( new FileReader(path) );
+			BufferedReader br = new BufferedReader( new FileReader(PATH) );
 			String line;
 			while ((line = br.readLine()) != null) {
 				// exclusion des mots de 3 lettres ou moins
@@ -26,4 +27,7 @@ public class Dictionary {
 		}
 	}
 
+    public ArrayList<String> getBase() {
+        return this.base;
+    }
 }
