@@ -45,7 +45,7 @@ public class Bayes {
 			}	
 		}
 		for (Map.Entry<String, Integer> entry : this.vectorHam.entrySet()) {
-System.out.println(entry.getKey() + " \t "+entry.getValue());
+			System.out.println(entry.getKey() + " \t "+entry.getValue());
 		}
 
 		// SPAM ---------- ---------- ---------- ---------- ---------- ---------- ----------
