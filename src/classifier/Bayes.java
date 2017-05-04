@@ -11,46 +11,71 @@ public class Bayes {
     private HashMap<String, Double> vectorHam;
     private HashMap<String, Double> vectorSpam;
 
+    private HashMap<String, Double> vectorBjHam;
+    private HashMap<String, Double> vectorBjSpam;
+    public static final int epsilon = 1;
+
     private final static String BASE_APP_HAM = "./base/baseapp/ham/";
     private final static String BASE_APP_SPAM = "./base/baseapp/spam/";
+
+    private double pSpam;
 
     public Bayes(Dictionary d) {
         this.dictionary = d;
 
-        this.vectorHam = new HashMap<String, Double>();
-        this.vectorSpam = new HashMap<String, Double>();
+        // Indique le nombre se Ham (ou Spam) contenant le mot correspondant
+        this.vectorHam = new HashMap<>();
+        this.vectorSpam = new HashMap<>();
+        this.vectorBjHam = new HashMap<>();
+        this.vectorBjSpam = new HashMap<>();
 
         for (String word : dictionary.getBase()) {
             vectorHam.put(word, 0.0);
             vectorSpam.put(word, 0.0);
+
+            // probabilité de voir le mot j dans un Ham (ou Spam)
+            vectorBjHam.put(word, 0.0);
+            vectorBjSpam.put(word, 0.0);
         }
     }
 
-    public void analysisBaseApp(int mHam, int mSpam) {
+    public void analysisBaseApp(String pathBaseTest, int spamApp, int hamApp, int spamTest, int hamTest) {
 
-        this.calculStatHam(mHam);
+        pSpam = (double) spamApp / (double) (hamApp + spamApp);
 
-        this.calculStatSpam(mSpam);
+        this.calculStatHam(hamApp);
 
+        this.calculStatSpam(spamApp);
 
-        // P(Y = SPAM) --- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+        int errSpam = 0;
+        int errHam = 0;
 
-        double pSpam = mSpam / (mHam + mSpam);
+        System.out.println("\nTest :");
+        String[] filesName = new File(pathBaseTest+"/spam").list();
+        for(int i = 0; i < spamTest; i++){
+            Message m = new Message(pathBaseTest+File.separator+"/spam/"+filesName[i], this.dictionary);
+            if(!filtreGeneratif(m.getVector())){
+                System.out.println("SPAM numéro "+i+" identifié comme un SPAM");
+            }else{
+                System.out.println("SPAM numéro "+i+" identifié comme un HAM  *** erreur ***");
+                errSpam++;
+            }
+        }
 
+        filesName = new File(pathBaseTest+File.separator+"/ham").list();
+        for(int i = 0; i < spamTest; i++){
+            Message m = new Message(pathBaseTest+File.separator+"/ham/"+filesName[i], this.dictionary);
+            if(filtreGeneratif(m.getVector())){
+                System.out.println("HAM numéro "+i+" identifié comme un HAM");
+            }else{
+                System.out.println("HAM numéro "+i+" identifié comme un SPAM *** erreur ***");
+                errHam++;
+            }
+        }
 
-        // Probabilité a posteriori-- ---------- ---------- ---------- ---------- ---------- ----------
-
-        double pSpamSachantX = 0;
-
-
-        // comparaison des valeures obtenues
-        /*for (Map.Entry entry : this.vectorHam.entrySet()) {
-            System.out.println(entry.getKey() + " \t " + entry.getValue() + " \t " + this.vectorBjHam.get(entry.getKey()) + " \t " +
-                    this.vectorSpam.get(entry.getKey()) + " \t " + this.vectorBjSpam.get(entry.getKey()));
-        }*/
-
-        filtreGeneratif();
-
+        System.out.println("\nErreur de test sur les "+spamTest+" SPAM      : "+(errSpam/spamTest)*100+"%");
+        System.out.println("Erreur de test sur les "+hamTest+" HAM       : "+(errHam/hamTest)*100+"%");
+        System.out.println("Erreur de test globale sur "+(spamTest+hamTest)+" mails : "+(errHam+errSpam)/(spamTest+hamTest)+"%\n");
         System.out.println("Fin d'apprentissage");
     }
 
@@ -61,6 +86,7 @@ public class Bayes {
         // recuperation des fichers d'apprentissage des HAM
         String[] filesName = new File(Bayes.BASE_APP_HAM).list();
 
+        // Pour chaque mail on lit le message e
         for (int cmpt = 0; cmpt < mHam; cmpt++) {
             // on lit le message
             Message m = new Message(Bayes.BASE_APP_HAM + filesName[cmpt], this.dictionary);
@@ -71,10 +97,13 @@ public class Bayes {
         }
 
 
-        // Calcul des stats des mots des HAM
+        // Calcul des stats des mots des HAM -> BjHAM
         for (Map.Entry<String, Double> entry : this.vectorHam.entrySet())
+            // Si c'est egale à 0 pas besoin de faire un put car vecteur déjà initilisé
             if (entry.getValue() != 0)
-                this.vectorHam.put(entry.getKey(), this.vectorHam.get(entry.getKey()) / mHam);
+                this.vectorBjHam.put(entry.getKey(), (this.vectorHam.get(entry.getKey()) + epsilon) / (mHam + 2 * epsilon));
+
+
     }
 
     public void calculStatSpam(int mSpam) {
@@ -93,41 +122,49 @@ public class Bayes {
                     this.vectorSpam.put(entry.getKey(), this.vectorSpam.get(entry.getKey()) + 1);
         }
 
-        // Calcul des stats des mots des SPAM
+        // Calcul des stats des mots des SPAM -> BjSPAM
         for (Map.Entry<String, Double> entry : this.vectorSpam.entrySet())
+            // Si c'est egale à 0 pas besoin de faire un put car vecteur déjà initilisé
             if (entry.getValue() != 0)
-                this.vectorSpam.put(entry.getKey(), this.vectorSpam.get(entry.getKey()) / mSpam);
+                this.vectorBjSpam.put(entry.getKey(), (this.vectorSpam.get(entry.getKey()) + epsilon) / (mSpam + 2 * epsilon));
     }
 
-    public void filtreGeneratif() {
-        // P(X=x|Y=...) -- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+    public boolean filtreGeneratif(HashMap<String, Integer> vectorX) {
+        boolean res;
+        // P(X=x|Y=SPAM)
+        double pXSachantSpam = 1.0;
+        double pXSachantHam = 1.0;
 
-        double pXSachantSpam = 1;
-        for (Map.Entry entry : this.vectorSpam.entrySet()) {
-            // Il faut cast entry.getValue() -> Bizarre !!
-            //System.out.println(vectorSpam.get(entry.getKey()));
-            System.out.println(pXSachantSpam);
-            if ((double) entry.getValue() == 0.0) {
-                //System.out.println(entry.getValue());
-                //System.out.println(vectorSpam.get(entry.getKey()));
-                pXSachantSpam *= 1.0 - vectorSpam.get(entry.getKey());
-            } else {
-                //System.out.println(entry.getValue());
+        for (Map.Entry entry : vectorX.entrySet()) {
+            if ((double) ((Integer) entry.getValue()) == 0.0) pXSachantSpam += Math.log(1.0 - vectorBjSpam.get(entry.getKey()));
+            else pXSachantSpam += Math.log(vectorBjSpam.get(entry.getKey()));
 
-                pXSachantSpam *= vectorSpam.get(entry.getKey());
-            }
 
-            //System.out.println(entry.getValue());
+            if ((double) ((Integer) entry.getValue()) == 0.0) pXSachantHam += Math.log(1.0 - vectorHam.get(entry.getKey()));
+            else pXSachantHam += Math.log(vectorHam.get(entry.getKey()));
         }
+        pXSachantSpam += Math.log(pSpam);
+        pXSachantHam += Math.log(1.0 - pSpam);
 
-        double pXSachantHam = 1;
-        for (Map.Entry entry : this.vectorHam.entrySet()) {
-            // Il faut cast entry.getValue() -> Bizarre !!!
-            if ((double) entry.getValue() == 0.0) pXSachantHam *= (1 - vectorHam.get(entry.getKey()));
-            else pXSachantHam *= vectorHam.get(entry.getKey());
-        }
+        // P(X=x|Y=HAM)
+        /*for (Map.Entry entry : vectorX.entrySet()) {
+        }*/
 
-        //System.out.println("pX|Spam "+pXSachantSpam+" pX|Ham "+pXSachantHam);
+        // P(X=x) = P(X=x|Y=HAM) + P(X=x|Y=SPAM)
+        double pX = pXSachantHam + pXSachantSpam;
+
+        // P(Y=SPAM|X=x)
+        double pSpamSachantX = Math.log(pSpam) + pXSachantSpam;
+        pSpamSachantX /= pX;
+
+        // P(Y=HAM|X=x)
+        double pHamSachantX = Math.log(1.0 - pSpam) + pXSachantHam;
+        pHamSachantX /= pX;
+
+        if(pSpamSachantX > pHamSachantX) res = false;
+        else res = true;
+
+        return res;
     }
 
 }
