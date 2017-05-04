@@ -42,6 +42,7 @@ public class Bayes {
     public void analysisBaseApp(String pathBaseTest, int spamApp, int hamApp, int spamTest, int hamTest) {
 
         // message app ou message test pour les calculs ???
+        // P(Y = SPAM)
         pSpam = (double) spamTest / (double) (hamTest + spamTest);
 
         this.calculStatHam(hamApp);
@@ -134,9 +135,14 @@ public class Bayes {
 
     }
 
+    /**
+     * Retourne vrai si le mot du vectorX est identifié comme un HAM
+     * @param vectorX
+     * @return
+     */
     public boolean filtreGeneratif(HashMap<String, Integer> vectorX) {
         boolean res;
-        // P(X=x|Y=SPAM)
+        // P(X = x | Y = SPAM)
         double pXSachantSpam = Math.log(pSpam);
         double pXSachantHam = Math.log(1.0 - pSpam);
 
@@ -152,14 +158,14 @@ public class Bayes {
                 pXSachantHam += Math.log(vectorBjHam.get(entry.getKey()));
         }
 
-        // P(X=x) = P(X=x|Y=HAM) + P(X=x|Y=SPAM)
+        // P(X = x) = P(X=x|Y=HAM) + P(X=x|Y=SPAM)
         double pX = pXSachantHam + pXSachantSpam;
 
-        // P(Y=SPAM|X=x)
+        // P(Y = SPAM | X = x)
         double pSpamSachantX = Math.log(pSpam) + pXSachantSpam;
         double pSpamSachantXFinal = pSpamSachantX - pX;
 
-        // P(Y=HAM|X=x)
+        // P(Y = HAM | X = x)
         double pHamSachantX = Math.log(1.0 - pSpam) + pXSachantHam;
         double pHamSachantXFinal = pHamSachantX - pX;
 
