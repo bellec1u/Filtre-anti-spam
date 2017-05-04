@@ -19,6 +19,7 @@ public class Bayes {
     private final static String BASE_APP_SPAM = "./base/baseapp/spam/";
 
     private double pSpam;
+    private double pPosterioriSpam, pPosterioriHam;
 
     public Bayes(Dictionary d) {
         this.dictionary = d;
@@ -52,6 +53,7 @@ public class Bayes {
         int errSpam = 0;
         int errHam = 0;
 
+        // On peut afficher les proba a posteriori des deux catégories
         System.out.println("\nTest :");
         String[] filesName = new File(pathBaseTest + "/spam").list();
         for (int i = 0; i < spamTest && i < filesName.length; i++) {
@@ -163,14 +165,14 @@ public class Bayes {
 
         // P(Y = SPAM | X = x)
         double pSpamSachantX = Math.log(pSpam) + pXSachantSpam;
-        double pSpamSachantXFinal = pSpamSachantX - pX;
+        pPosterioriSpam = pSpamSachantX - pX;
 
         // P(Y = HAM | X = x)
         double pHamSachantX = Math.log(1.0 - pSpam) + pXSachantHam;
-        double pHamSachantXFinal = pHamSachantX - pX;
+        pPosterioriHam = pHamSachantX - pX;
 
         // Nécessaire de faire Math.exp ???
-        if (Math.exp(pSpamSachantXFinal) > Math.exp(pHamSachantXFinal)) res = false;
+        if (Math.exp(pPosterioriSpam) > Math.exp(pPosterioriHam)) res = false;
         else res = true;
 
         return res;
