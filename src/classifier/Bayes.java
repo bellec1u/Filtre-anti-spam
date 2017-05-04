@@ -41,7 +41,8 @@ public class Bayes {
 
     public void analysisBaseApp(String pathBaseTest, int spamApp, int hamApp, int spamTest, int hamTest) {
 
-        pSpam = (double) spamApp / (double) (hamApp + spamApp);
+        // message app ou message test pour les calculs ???
+        pSpam = (double) spamTest / (double) (hamTest + spamTest);
 
         this.calculStatHam(hamApp);
 
@@ -51,31 +52,35 @@ public class Bayes {
         int errHam = 0;
 
         System.out.println("\nTest :");
-        String[] filesName = new File(pathBaseTest+"/spam").list();
-        for(int i = 0; i < spamTest; i++){
-            Message m = new Message(pathBaseTest+File.separator+"/spam/"+filesName[i], this.dictionary);
-            if(!filtreGeneratif(m.getVector())){
-                System.out.println("SPAM numéro "+i+" identifié comme un SPAM");
-            }else{
-                System.out.println("SPAM numéro "+i+" identifié comme un HAM  *** erreur ***");
+        String[] filesName = new File(pathBaseTest + "/spam").list();
+        for (int i = 0; i < spamTest; i++) {
+            Message m = new Message(pathBaseTest + File.separator + "/spam/" + filesName[i], this.dictionary);
+            if (!filtreGeneratif(m.getVector())) {
+                System.out.println("SPAM numéro " + i + " identifié comme un SPAM");
+            } else {
+                System.out.println("SPAM numéro " + i + " identifié comme un HAM  *** erreur ***");
                 errSpam++;
             }
         }
 
-        filesName = new File(pathBaseTest+File.separator+"/ham").list();
-        for(int i = 0; i < spamTest; i++){
-            Message m = new Message(pathBaseTest+File.separator+"/ham/"+filesName[i], this.dictionary);
-            if(filtreGeneratif(m.getVector())){
-                System.out.println("HAM numéro "+i+" identifié comme un HAM");
-            }else{
-                System.out.println("HAM numéro "+i+" identifié comme un SPAM *** erreur ***");
+        filesName = new File(pathBaseTest + File.separator + "/ham").list();
+        for (int i = 0; i < spamTest; i++) {
+            Message m = new Message(pathBaseTest + File.separator + "/ham/" + filesName[i], this.dictionary);
+            if (filtreGeneratif(m.getVector())) {
+                System.out.println("HAM numéro " + i + " identifié comme un HAM");
+            } else {
+                System.out.println("HAM numéro " + i + " identifié comme un SPAM *** erreur ***");
                 errHam++;
             }
         }
 
-        System.out.println("\nErreur de test sur les "+spamTest+" SPAM      : "+(errSpam/spamTest)*100+"%");
-        System.out.println("Erreur de test sur les "+hamTest+" HAM       : "+(errHam/hamTest)*100+"%");
-        System.out.println("Erreur de test globale sur "+(spamTest+hamTest)+" mails : "+(errHam+errSpam)/(spamTest+hamTest)+"%\n");
+        double errSpamFinal = ((double) errSpam / (double) spamTest) * 100.0;
+        double errHamFinal = ((double) errHam / (double) hamTest) * 100.0;
+        int nbTotalTest = spamTest + hamTest;
+        double errFinal = ((double) (errHam + errSpam) / (double) nbTotalTest) * 100.0;
+        System.out.println("\nErreur de test sur les " + spamTest + " SPAM      : " + errSpamFinal + "%");
+        System.out.println("Erreur de test sur les " + hamTest + " HAM       : " + errHamFinal + "%");
+        System.out.println("Erreur de test globale sur " + nbTotalTest + " mails : " + errFinal + "%\n");
         System.out.println("Fin d'apprentissage");
     }
 
@@ -132,36 +137,33 @@ public class Bayes {
     public boolean filtreGeneratif(HashMap<String, Integer> vectorX) {
         boolean res;
         // P(X=x|Y=SPAM)
-        double pXSachantSpam = 1.0;
-        double pXSachantHam = 1.0;
+        double pXSachantSpam = Math.log(pSpam);
+        double pXSachantHam = Math.log(1.0 - pSpam);
 
         for (Map.Entry entry : vectorX.entrySet()) {
-            if ((double) ((Integer) entry.getValue()) == 0.0) pXSachantSpam += Math.log(1.0 - vectorBjSpam.get(entry.getKey()));
-            else pXSachantSpam += Math.log(vectorBjSpam.get(entry.getKey()));
+            if ((double) ((Integer) entry.getValue()) == 0.0)
+                pXSachantSpam += Math.log(1.0 - vectorBjSpam.get(entry.getKey()));
+            else
+                pXSachantSpam += Math.log(vectorBjSpam.get(entry.getKey()));
 
-
-            if ((double) ((Integer) entry.getValue()) == 0.0) pXSachantHam += Math.log(1.0 - vectorHam.get(entry.getKey()));
-            else pXSachantHam += Math.log(vectorHam.get(entry.getKey()));
+            if ((double) ((Integer) entry.getValue()) == 0.0)
+                pXSachantHam += Math.log(1.0 - vectorBjHam.get(entry.getKey()));
+            else
+                pXSachantHam += Math.log(vectorBjHam.get(entry.getKey()));
         }
-        pXSachantSpam += Math.log(pSpam);
-        pXSachantHam += Math.log(1.0 - pSpam);
-
-        // P(X=x|Y=HAM)
-        /*for (Map.Entry entry : vectorX.entrySet()) {
-        }*/
 
         // P(X=x) = P(X=x|Y=HAM) + P(X=x|Y=SPAM)
         double pX = pXSachantHam + pXSachantSpam;
 
         // P(Y=SPAM|X=x)
         double pSpamSachantX = Math.log(pSpam) + pXSachantSpam;
-        pSpamSachantX /= pX;
+        double pSpamSachantXFinal = pSpamSachantX - pX;
 
         // P(Y=HAM|X=x)
         double pHamSachantX = Math.log(1.0 - pSpam) + pXSachantHam;
-        pHamSachantX /= pX;
+        double pHamSachantXFinal = pHamSachantX - pX;
 
-        if(pSpamSachantX > pHamSachantX) res = false;
+        if (Math.exp(pSpamSachantXFinal) > Math.exp(pHamSachantXFinal)) res = false;
         else res = true;
 
         return res;
