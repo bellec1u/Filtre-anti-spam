@@ -82,6 +82,7 @@ public class Bayes {
         System.out.println("Erreur de test sur les " + hamTest + " HAM       : " + errHamFinal + "%");
         System.out.println("Erreur de test globale sur " + nbTotalTest + " mails : " + errFinal + "%\n");
         System.out.println("Fin d'apprentissage");
+
     }
 
     public void calculStatHam(int mHam) {
@@ -101,13 +102,11 @@ public class Bayes {
                     this.vectorHam.put(entry.getKey(), this.vectorHam.get(entry.getKey()) + 1);
         }
 
-
         // Calcul des stats des mots des HAM -> BjHAM
         for (Map.Entry<String, Double> entry : this.vectorHam.entrySet())
             // Si c'est egale à 0 pas besoin de faire un put car vecteur déjà initilisé
             if (entry.getValue() != 0)
                 this.vectorBjHam.put(entry.getKey(), (this.vectorHam.get(entry.getKey()) + epsilon) / (mHam + 2 * epsilon));
-
 
     }
 
@@ -132,6 +131,7 @@ public class Bayes {
             // Si c'est egale à 0 pas besoin de faire un put car vecteur déjà initilisé
             if (entry.getValue() != 0)
                 this.vectorBjSpam.put(entry.getKey(), (this.vectorSpam.get(entry.getKey()) + epsilon) / (mSpam + 2 * epsilon));
+
     }
 
     public boolean filtreGeneratif(HashMap<String, Integer> vectorX) {
@@ -163,6 +163,7 @@ public class Bayes {
         double pHamSachantX = Math.log(1.0 - pSpam) + pXSachantHam;
         double pHamSachantXFinal = pHamSachantX - pX;
 
+        // Nécessaire de faire Math.exp ???
         if (Math.exp(pSpamSachantXFinal) > Math.exp(pHamSachantXFinal)) res = false;
         else res = true;
 
