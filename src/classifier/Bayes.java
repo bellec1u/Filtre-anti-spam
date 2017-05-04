@@ -54,7 +54,7 @@ public class Bayes {
 
         System.out.println("\nTest :");
         String[] filesName = new File(pathBaseTest + "/spam").list();
-        for (int i = 0; i < spamTest; i++) {
+        for (int i = 0; i < spamTest && i < filesName.length; i++) {
             Message m = new Message(pathBaseTest + File.separator + "/spam/" + filesName[i], this.dictionary);
             if (!filtreGeneratif(m.getVector())) {
                 System.out.println("SPAM numéro " + i + " identifié comme un SPAM");
@@ -65,7 +65,7 @@ public class Bayes {
         }
 
         filesName = new File(pathBaseTest + File.separator + "/ham").list();
-        for (int i = 0; i < spamTest; i++) {
+        for (int i = 0; i < hamTest && i < filesName.length; i++) {
             Message m = new Message(pathBaseTest + File.separator + "/ham/" + filesName[i], this.dictionary);
             if (filtreGeneratif(m.getVector())) {
                 System.out.println("HAM numéro " + i + " identifié comme un HAM");
