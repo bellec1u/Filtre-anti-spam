@@ -61,7 +61,7 @@ public class Bayes {
             if (!filtreGeneratif(m.getVector())) {
                 System.out.println("SPAM numéro " + i + " identifié comme un SPAM");
             } else {
-                System.out.println("SPAM numéro " + i + " identifié comme un HAM  *** erreur ***");
+                System.err.println("SPAM numéro " + i + " identifié comme un HAM");
                 errSpam++;
             }
         }
@@ -72,7 +72,7 @@ public class Bayes {
             if (filtreGeneratif(m.getVector())) {
                 System.out.println("HAM numéro " + i + " identifié comme un HAM");
             } else {
-                System.out.println("HAM numéro " + i + " identifié comme un SPAM *** erreur ***");
+                System.err.println("HAM numéro " + i + " identifié comme un SPAM");
                 errHam++;
             }
         }
@@ -160,19 +160,22 @@ public class Bayes {
                 pXSachantHam += Math.log(vectorBjHam.get(entry.getKey()));
         }
 
-        // P(X = x) = P(X=x|Y=HAM) + P(X=x|Y=SPAM)
+        // P(X = x) = P(X = x | Y = HAM) + P(X = x | Y = SPAM)
         double pX = pXSachantHam + pXSachantSpam;
 
         // P(Y = SPAM | X = x)
-        double pSpamSachantX = Math.log(pSpam) + pXSachantSpam;
-        pPosterioriSpam = pSpamSachantX - pX;
+        //double pSpamSachantX = Math.log(pSpam) + pXSachantSpam;
+        //pPosterioriSpam = pSpamSachantX - pX;
 
         // P(Y = HAM | X = x)
-        double pHamSachantX = Math.log(1.0 - pSpam) + pXSachantHam;
-        pPosterioriHam = pHamSachantX - pX;
+        //double pHamSachantX = Math.log(1.0 - pSpam) + pXSachantHam;
+        //pPosterioriHam = pHamSachantX - pX;
 
+        pPosterioriHam = 1.0 / (1 + Math.exp(pXSachantSpam - pXSachantHam));
+        pPosterioriSpam = 1.0 / (1 + Math.exp(pXSachantHam - pXSachantSpam));
         // Nécessaire de faire Math.exp ???
-        if (Math.exp(pPosterioriSpam) > Math.exp(pPosterioriHam)) res = false;
+        //if (Math.exp(pPosterioriSpam) > Math.exp(pPosterioriHam)) res = false;
+        if (pPosterioriSpam > pPosterioriHam) res = false;
         else res = true;
 
         return res;
