@@ -1,16 +1,18 @@
 package classifier;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class Bayes {
+public class Bayes implements Serializable {
 
     private Dictionary dictionary;
     private HashMap<String, Double> vectorHam;
     private HashMap<String, Double> vectorSpam;
 
+    // proba d'avoir le mot j dans un Ham ou Spam
     private HashMap<String, Double> vectorBjHam;
     private HashMap<String, Double> vectorBjSpam;
     public static final int epsilon = 1;
@@ -21,7 +23,7 @@ public class Bayes {
     private double pSpam;
     private double pPosterioriSpam, pPosterioriHam;
 
-    public Bayes(Dictionary d) {
+    public Bayes(Dictionary d, int spamApp, int hamApp) {
         this.dictionary = d;
 
         // Indique le nombre se Ham (ou Spam) contenant le mot correspondant
@@ -38,17 +40,17 @@ public class Bayes {
             vectorBjHam.put(word, 0.0);
             vectorBjSpam.put(word, 0.0);
         }
-    }
-
-    public void analysisBaseApp(String pathBaseTest, int spamApp, int hamApp, int spamTest, int hamTest) {
-
-        // message app ou message test pour les calculs ???
-        // P(Y = SPAM)
-        pSpam = (double) spamTest / (double) (hamTest + spamTest);
+        
 
         this.calculStatHam(hamApp);
 
         this.calculStatSpam(spamApp);
+    }
+
+    public void analysisBaseApp(String pathBaseTest, int spamTest, int hamTest) {
+
+        // P(Y = SPAM)
+        pSpam = (double) spamTest / (double) (hamTest + spamTest);
 
         int errSpam = 0;
         int errHam = 0;
@@ -179,6 +181,14 @@ public class Bayes {
         else res = true;
 
         return res;
+    }
+    
+    public void setDictionary(Dictionary dico) {
+    	this.dictionary = dico;
+    }
+    
+    public Dictionary getDictionary() {
+    	return this.dictionary;
     }
 
 }
