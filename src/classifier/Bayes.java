@@ -17,13 +17,13 @@ public class Bayes implements Serializable {
     private HashMap<String, Double> vectorBjSpam;
     public static final int epsilon = 1;
 
-    private final static String BASE_APP_HAM = "./base/baseapp/ham/";
-    private final static String BASE_APP_SPAM = "./base/baseapp/spam/";
+    private static String BASE_APP_HAM = "./base/baseapp/ham/";
+    private static String BASE_APP_SPAM = "./base/baseapp/spam/";
 
     private double pSpam;
     private double pPosterioriSpam, pPosterioriHam;
 
-    public Bayes(Dictionary d, int spamApp, int hamApp) {
+    public Bayes(Dictionary d, String pathBase, int spamApp, int hamApp) {
         this.dictionary = d;
 
         // Indique le nombre se Ham (ou Spam) contenant le mot correspondant
@@ -40,6 +40,9 @@ public class Bayes implements Serializable {
             vectorBjHam.put(word, 0.0);
             vectorBjSpam.put(word, 0.0);
         }
+
+        BASE_APP_HAM = pathBase+"/ham/";
+        BASE_APP_SPAM = pathBase+"/spam/";
         
 
         this.calculStatHam(hamApp);
