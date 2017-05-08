@@ -1,16 +1,10 @@
 package main;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Scanner;
-
 import classifier.Bayes;
 import classifier.Dictionary;
+
+import java.io.*;
+import java.util.Scanner;
 
 public class Main {
 
@@ -28,14 +22,14 @@ public class Main {
 				int hamApp = sc.nextInt();
 				
 				Dictionary d = new Dictionary();
-				Bayes b = new Bayes(d, spamApp, hamApp);
+				//Bayes b = new Bayes(d, spamApp, hamApp);
 				
 				int spamTest = Integer.parseInt(args[1]);
 				int hamTest = Integer.parseInt(args[2]);
 
-				b.analysisBaseApp(args[0], spamTest, hamTest);
+				//b.analysisBaseApp(args[0], spamTest, hamTest);
 				
-				sauvegarder_classifieur(d, b);
+				//sauvegarder_classifieur(d, b);
 			} else if (args.length == 4) {
 				// on a un classifieur a charger
 				Bayes bayes = charger_classifieur(args[0]);

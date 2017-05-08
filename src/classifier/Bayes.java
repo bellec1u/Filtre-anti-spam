@@ -101,7 +101,7 @@ public class Bayes implements Serializable {
         String[] filesName = new File(Bayes.BASE_APP_HAM).list();
 
         // Pour chaque mail on lit le message e
-        for (int cmpt = 0; cmpt < mHam; cmpt++) {
+        for (int cmpt = 0; cmpt < mHam && cmpt < filesName.length; cmpt++) {
             // on lit le message
             Message m = new Message(Bayes.BASE_APP_HAM + filesName[cmpt], this.dictionary);
             // on regarde les mots du message
@@ -125,7 +125,7 @@ public class Bayes implements Serializable {
         // recuperation des fichers d'apprentissage des SPAM
         String[] filesName = new File(Bayes.BASE_APP_SPAM).list();
 
-        for (int cmpt = 0; cmpt < mSpam; cmpt++) {
+        for (int cmpt = 0; cmpt < mSpam && cmpt < filesName.length; cmpt++) {
             // on lit le message
             Message m = new Message(Bayes.BASE_APP_SPAM + filesName[cmpt], this.dictionary);
             // on regarde les mots du message
