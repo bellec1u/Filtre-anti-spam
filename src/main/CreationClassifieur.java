@@ -12,7 +12,7 @@ public class CreationClassifieur {
 
     public static void main(String args[]){
         if(args.length != 4){
-            throw new Error("java CreationClassifieur <@classifieur> <@baseApp> <nbSpamTest> <nbHamTest>");
+            throw new Error("java CreationClassifieur <@classifieur> <@baseApp> <nbSpamApp> <nbHamApp>");
         }else{
             Dictionary d = new Dictionary();
             int nbSpam = Integer.parseInt(args[2]);
