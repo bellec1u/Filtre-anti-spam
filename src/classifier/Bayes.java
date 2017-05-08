@@ -50,9 +50,9 @@ public class Bayes implements Serializable {
             vectorBjSpam.put(word, 0.0);
         }
 
-        BASE_APP_HAM = pathBase+"/ham/";
-        BASE_APP_SPAM = pathBase+"/spam/";
-        
+        BASE_APP_HAM = pathBase + "/ham/";
+        BASE_APP_SPAM = pathBase + "/spam/";
+
 
         this.calculStatHam(hamApp);
 
@@ -153,6 +153,7 @@ public class Bayes implements Serializable {
 
     /**
      * Retourne vrai si le mot du vectorX est identifié comme un HAM
+     *
      * @param vectorX
      * @return
      */
@@ -194,13 +195,22 @@ public class Bayes implements Serializable {
 
         return res;
     }
-    
+
     public void setDictionary(Dictionary dico) {
-    	this.dictionary = dico;
+        this.dictionary = dico;
     }
-    
+
     public Dictionary getDictionary() {
-    	return this.dictionary;
+        return this.dictionary;
+    }
+
+    public void classifierMail(String pathMail) {
+        Message m = new Message(pathMail, this.dictionary);
+        if (!filtreGeneratif(m.getVector())) {
+            System.out.println("Mail identifié comme un SPAM");
+        } else {
+            System.err.println("Mail identifié comme un HAM");
+        }
     }
 
 }
